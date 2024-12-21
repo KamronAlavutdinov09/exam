@@ -1,0 +1,32 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Calculator</h1>
+    <form id="calculator-form" method="post" action="{% url 'calculate' %}">
+        {% csrf_token %}
+        <input type="text" id="expression" name="expression" placeholder="Enter expression ">
+        <button type="submit">Calculate</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<script>
+    const form = document.getElementById('calculator-form');
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const expression = document.getElementById('expression').value;
+
+        const response = await fetch("{% url 'calculate' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: new URLSearchParams({expression}),
+        });
+        const data = await response.json();
+        document.getElementById('result').innerHTML = data.result || data.error;
+    };
+</script>
+{% endblock %}
